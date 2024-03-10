@@ -10,10 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole{
+  ASSIGNER
+  ASSIGNEE
+}
+
 model User {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   FirstName String
   LastName  String
   Email     String @unique
   Password  String
+  role      UserRole
 }
