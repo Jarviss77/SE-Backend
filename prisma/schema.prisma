@@ -22,21 +22,25 @@ enum taskStatus {
 }
 
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
   FirstName     String
   LastName      String
-  Email         String   @unique
+  Email         String         @unique
   Password      String
-  Role          userRole @default(ASSIGNEE)
-  AssignedTasks Task[]   @relation("Assigner")
-  TodoTasks     Task[]   @relation("Assignee")
+  Role          userRole       @default(ASSIGNEE)
+  AssignedTasks Task[]         @relation("Assigner")
+  TodoTasks     Task[]         @relation("Assignee")
+  Organizations Organization[] @relation("UsersInOrganisation")
 }
 
 model Organization {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  Name        String
-  CreatedById String @unique @db.ObjectId
-  Tasks       Task[]
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  Name         String
+  CreatedById  String   @unique @db.ObjectId
+  Tasks        Task[]
+  User         User?    @relation(name: "UsersInOrganisation", fields: [UserIds], references: [id])
+  UserIds      String[] @db.ObjectId
+  AssignersIds String[] @db.ObjectId
 }
 
 model Task {
