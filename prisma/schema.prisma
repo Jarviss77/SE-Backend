@@ -15,11 +15,41 @@ enum userRole {
   ASSIGNER
 }
 
+enum taskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  FirstName String
-  LastName  String
-  Email     String   @unique
-  Password  String
-  Role      userRole @default(ASSIGNEE)
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  FirstName     String
+  LastName      String
+  Email         String   @unique
+  Password      String
+  Role          userRole @default(ASSIGNEE)
+  AssignedTasks Task[]   @relation("Assigner")
+  TodoTasks     Task[]   @relation("Assignee")
+}
+
+model Organization {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  Name        String
+  CreatedById String @unique @db.ObjectId
+  Tasks       Task[]
+}
+
+model Task {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  Title          String
+  Description    String
+  Status         taskStatus   @default(PENDING)
+  assignerId     String       @db.ObjectId
+  Assigner       User         @relation("Assigner", fields: [assignerId], references: [id])
+  assigneeId     String?      @db.ObjectId
+  Assignee       User?        @relation("Assignee", fields: [assigneeId], references: [id])
+  organizationId String       @unique @db.ObjectId
+  Organization   Organization @relation(fields: [organizationId], references: [id])
+  StartDate      DateTime
+  EndDate        DateTime
 }
