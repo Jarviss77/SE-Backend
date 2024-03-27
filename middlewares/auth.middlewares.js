@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { response_500 } from '../utils/statuscodes.utils.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 function verifyToken(token) {

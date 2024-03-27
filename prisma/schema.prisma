@@ -27,7 +27,7 @@ model User {
   LastName      String
   Email         String         @unique
   Password      String
-  Role          userRole       @default(ASSIGNEE)
+  Role          userRole
   AssignedTasks Task[]         @relation("Assigner")
   TodoTasks     Task[]         @relation("Assignee")
   Organizations Organization[] @relation("UsersInOrganisation")
