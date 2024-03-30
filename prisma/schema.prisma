@@ -22,25 +22,34 @@ enum taskStatus {
 }
 
 model User {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  FirstName     String
-  LastName      String
-  Email         String         @unique
-  Password      String
-  Role          userRole
-  AssignedTasks Task[]         @relation("Assigner")
-  TodoTasks     Task[]         @relation("Assignee")
-  Organizations Organization[] @relation("UsersInOrganisation")
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  FirstName   String
+  LastName    String
+  Email       String   @unique
+  Password    String
+  Memberships Member[]
 }
 
 model Organization {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  Name         String
-  CreatedById  String   @unique @db.ObjectId
-  Tasks        Task[]
-  User         User?    @relation(name: "UsersInOrganisation", fields: [UserIds], references: [id])
-  UserIds      String[] @db.ObjectId
-  AssignersIds String[] @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  Name        String
+  CreatedById String   @db.ObjectId
+  Tasks       Task[]
+  Member      Member?
+  MemberIds   String[] @db.ObjectId
+}
+
+model Member {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  UserId         String       @db.ObjectId
+  User           User         @relation(fields: [UserId], references: [id])
+  OrganizationId String       @db.ObjectId @unique
+  Organization   Organization @relation(fields: [OrganizationId], references: [id])
+  AssignedTasks  Task[]       @relation("Assigner")
+  TodoTasks      Task[]       @relation("Assignee")
+  UserRole       userRole
+  Points         Int
+  DateJoined     DateTime
 }
 
 model Task {
@@ -49,11 +58,11 @@ model Task {
   Description    String
   Status         taskStatus   @default(PENDING)
   assignerId     String       @db.ObjectId
-  Assigner       User         @relation("Assigner", fields: [assignerId], references: [id])
+  Assigner       Member       @relation("Assigner", fields: [assignerId], references: [id])
   assigneeId     String?      @db.ObjectId
-  Assignee       User?        @relation("Assignee", fields: [assigneeId], references: [id])
-  organizationId String       @unique @db.ObjectId
-  Organization   Organization @relation(fields: [organizationId], references: [id])
+  Assignee       Member?      @relation("Assignee", fields: [assigneeId], references: [id])
+  OrganizationId String       @unique @db.ObjectId
+  Organization   Organization @relation(fields: [OrganizationId], references: [id])
   StartDate      DateTime
   EndDate        DateTime
 }
