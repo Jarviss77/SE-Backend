@@ -35,7 +35,7 @@ export async function register(req, res){
             }
         });
 
-        const token = jwt.sign({userID: user.id, FirstName: user.FirstName,  LastName:user.LastName, Role: user.Role},JWT_SECRET,{expiresIn:'2d'})
+        const token = jwt.sign({userID: user.id, FirstName: user.FirstName,  LastName:user.LastName },JWT_SECRET,{expiresIn:'2d'})
 
         return response_200(res,'User created successfully',{
             user: user,
@@ -69,7 +69,7 @@ export async function login(req, res){
             return response_200(res,'Password is incorrect');
         }
 
-        const token = jwt.sign({userID: user.id, FirstName: user.FirstName,  LastName:user.LastName, Role: user.Role},JWT_SECRET,{expiresIn:'2d'})
+        const token = jwt.sign({userID: user.id, FirstName: user.FirstName,  LastName:user.LastName },JWT_SECRET,{expiresIn:'2d'})
 
         return response_200(res,'Logged in successfully',{
             user: user,
