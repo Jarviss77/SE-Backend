@@ -47,8 +47,8 @@ model Member {
   AssignedTasks  Task[]       @relation("Assigner")
   TodoTasks      Task[]       @relation("Assignee")
   UserRole       userRole
-  Points         Int
-  DateJoined     DateTime
+  Points         Int          @default(0)
+  DateJoined     DateTime     @default(now())
 }
 
 model Task {
