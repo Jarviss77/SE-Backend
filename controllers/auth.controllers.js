@@ -28,8 +28,8 @@ export async function register(req, res){
 
         const user = await prisma.user.create({
             data: {
-                FirstName,
-                LastName,
+                FirstName: FirstName, 
+                LastName: LastName,
                 Email: email,
                 Password: securePassword,
             }

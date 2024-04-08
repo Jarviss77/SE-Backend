@@ -1,18 +1,14 @@
-const User = require('../models/user.model');
+import  { response_500, response_200,response_404 } from '../utils/statuscodes.utils.js';
+import prisma from '../config/db.config.js';
 
-import { verify } from 'jsonwebtoken';
-import { extractPayloadFromToken, verifyToken } from '../middlewares/auth.middlewares.js';
-
-export async function getUserId (req, res) {
+export async function getUser (req, res) {
     try {
-        const token = verifyToken();
-        const payload = extractPayloadFromToken(decodeToken);
-        const user = await User.findById(req.params.id);
+        const user = await prisma.user.findUnique({where: {id: req.user.id}});
         if (!user) {
-            return res.status(404).send({ message: 'User Not Found.' });
+            response_404(res, 'User not found');
         }
-        res.send(user);
+        response_200(res, "user fetched successfully",user);  
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        response_500(res, 'Error getting UserId:', error);
     }
 };
