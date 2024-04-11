@@ -27,6 +27,11 @@ model User {
   LastName    String
   Email       String   @unique
   Password    String
+  About       String?
+  City        String?
+  State       String?
+  Bio         String?
+  ProfilePic  String?
   Memberships Member[]
 }
 
