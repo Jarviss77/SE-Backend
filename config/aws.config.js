@@ -15,7 +15,7 @@ const s3Client = new S3Client({
 export async function getObjectUrl(key){
     const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: key,
+        Key: 'uploads/displaypictures/' + key,
     };
     const command = new GetObjectCommand(params);
     const url = await getSignedUrl(s3Client, command);
@@ -40,5 +40,11 @@ export async function listObjects(){
     const data = await s3Client.send(new ListObjectsCommand(params));
     return data;
 }
+
+// async function init(){
+//     console.log("get image: ", await getObjectUrl("uploads/displaypictures/userid-1711546829354.jpeg"));
+// }
+//
+// init();
 
 
