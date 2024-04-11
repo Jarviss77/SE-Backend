@@ -41,5 +41,3 @@ export async function authVerify(req, res, next) {
         return response_500(res, "Server Error", error);
     }
 }
-
-
