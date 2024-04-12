@@ -27,3 +27,24 @@ export async function createOrganisation ( req, res) {
       response_500(res, 'Error creating organization:', error);
     }
   }
+
+
+export async function getOrganisation ( req, res) {
+    try {
+      const organisation = await prisma.organization.findUnique({
+        where: {
+          id: req.params.id,
+        },
+        include: {
+          Tasks: true,
+          Member: true
+        }
+      });
+      if(!organisation){
+        return response_400(res, "Organisation not found");
+      }
+      response_201(res, "Organisation Found", organisation);
+    } catch (error) {
+      response_500(res, 'Error getting organization:', error);
+    }
+  }
