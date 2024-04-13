@@ -3,7 +3,6 @@ import prisma from '../config/db.config.js';
 
 export async function isAssigner(req, res)  {
   try {
-
     // Extract user ID from request
     const memberId = req.body.id;
     // Fetch user membership
