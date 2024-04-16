@@ -41,6 +41,8 @@ export async function listObjects(){
     return data;
 }
 
+export { s3Client };
+
 // async function init(){
 //     console.log("get image: ", await getObjectUrl("uploads/displaypictures/userid-1711546829354.jpeg"));
 // }

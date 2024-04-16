@@ -5,6 +5,9 @@ import {
     response_500
 } from '../utils/statuscodes.utils.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -28,7 +31,7 @@ export async function register(req, res){
 
         const user = await prisma.user.create({
             data: {
-                FirstName: FirstName, 
+                FirstName: FirstName,
                 LastName: LastName,
                 Email: email,
                 Password: securePassword,
