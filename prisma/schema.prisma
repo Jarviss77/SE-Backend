@@ -31,7 +31,6 @@ model User {
   City        String?
   State       String?
   Bio         String?
-  ProfilePic  String?
   Memberships Member[]
 }
 
