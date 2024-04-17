@@ -2,7 +2,8 @@ import bcrypt from 'bcrypt';
 import prisma from '../config/db.config.js';
 import {
     response_200,
-    response_500
+    response_500,
+    response_400
 } from '../utils/statuscodes.utils.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -14,6 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export async function register(req, res){
     try {
         const {FirstName, LastName, email, password} = req.body;
+        console.log(FirstName)
 
         const userAlreadyPresent = await prisma.user.findUnique({
             where: {
@@ -23,7 +25,7 @@ export async function register(req, res){
 
         if (userAlreadyPresent) {
             console.log('Error creating user: User already exists in the DB');
-            return response_200(res,'User already exists in the DB');
+            return response_400(res,'User already exists in the DB');
         }
 
         const salt = await bcrypt.genSalt(10);
