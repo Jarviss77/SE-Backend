@@ -49,32 +49,37 @@ export async function getOrganisation ( req, res) {
     }
   }
 
-  export async function addMemberToOrganization (req, res) {
+export async function addMemberToOrganization (req, res) {
     try {
       // Extract organization ID, user ID, and user role from request
-      const { organizationId, userId, userRole } = req.body;
-  
+      const { organisationId, userId, userRole } = req.body;
+      
       // Check if organization exists
       const organization = await prisma.organization.findUnique({
-        where: { id: organizationId },
+        where: { id: organisationId },
+        include: { 
+          Member: true,
+          Tasks: true
+        },
       });
+
       if (!organization) {
         response_404(res, 'Organization not found');
       }
-  
       // Check if user exists
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
         response_404(res, 'User not found');
       }
-  
+      
       // Check if user is already a member of the organization
       const existingMember = await prisma.member.findFirst({
         where: {
-          OrganizationId: organizationId,
+          OrganizationId: organisationId,
           UserId: userId,
         },
       });
+      
       if (existingMember) {
         response_400(res, 'User is already a member of the organization');
       }
@@ -83,7 +88,7 @@ export async function getOrganisation ( req, res) {
       await prisma.member.create({
         data: {
           UserId: userId,
-          OrganizationId: organizationId,
+          OrganizationId: organisationId,
           UserRole: userRole,
         },
       });
@@ -93,4 +98,41 @@ export async function getOrganisation ( req, res) {
       response_400(res, 'Error adding member to organization:', error.message);
     }
   }
+
+export async function deleteMemberFromOrg (req, res){
+    try {
+        const { organizationId, userId } = req.body;
+        
+        // Check if organization exists
+        const organization = await prisma.organization.findUnique({
+          where: { id: organizationId },
+        });
+        if (!organization) {
+          response_404(res, 'Organization not found');
+        }
+        // check if member exist
+        const memberExist = await prisma.member.findFirst({
+          where: {
+            OrganizationId: organizationId,
+            UserId: userId,
+          }
+        });
+        if (!memberExist) {
+          response_404(res, 'Member not found');
+        }
+        
+        console.log(memberExist);
+
+        const member = await prisma.member.delete({
+            where: {
+              id : memberExist.id,
+              }
+            }
+);
+
+        response_200(res, "Member removed from organization", member);
+    } catch (error) {
+        response_500(res, 'Error deleting member from organization:', error);
+    }
+}  
   
