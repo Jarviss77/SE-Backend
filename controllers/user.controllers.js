@@ -27,3 +27,35 @@ export async function getUser (req, res) {
         response_500(res, 'Error getting UserId:', error);
     }
 }
+
+export async function getUsers (req, res) {
+    try {
+        const users = await prisma.user.findMany();
+        response_200(res, "users fetched successfully",users);
+    } catch (error) {
+        response_500(res, 'Error getting UserId:', error);
+    }
+}
+
+export async function updateUser (req, res) {
+    try{
+        const {FirstName, LastName, About, Bio, City, State} = req.body;
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: req.user.id
+            },
+            data: {
+                FirstName,
+                LastName,
+                About,
+                Bio,
+                City,
+                State
+            }
+        });
+        response_200(res, "user updated successfully", updatedUser);
+    }
+    catch (error) {
+        response_500(res, 'Error updating user:', error);
+    }
+}
