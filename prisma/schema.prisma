@@ -62,7 +62,7 @@ model Task {
   Status         taskStatus   @default(PENDING)
   assignerId     String       @db.ObjectId
   Assigner       Member       @relation(name: "Assigner", fields: [assignerId], references: [id])
-  assigneeId     String?      @db.ObjectId
+  assigneeId     String?      @db.ObjectId @default("unnamed")
   Assignee       Member?      @relation(name: "Assignee", fields: [assigneeId], references: [id])
   OrganizationId String       @db.ObjectId
   Organization   Organization @relation(fields: [OrganizationId], references: [id])

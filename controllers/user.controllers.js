@@ -16,9 +16,7 @@ export async function getUser (req, res) {
                     },
                 }
             }
-        }
-
-        );
+        });
         if (!user) {
             response_404(res, 'User not found');
         }
