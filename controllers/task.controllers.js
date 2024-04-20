@@ -34,3 +34,31 @@ export async function createTask(req, res) {
     response_500(res,'error creating new task', error)
   }
 }
+
+export async function assignTask(req,res){
+  try {
+    const { AssigneeID } = req.body;
+    const task = await prisma.task.findUnique({
+      where: {
+        id: req.params.id
+      }
+    })
+    if(!task){
+      return response_400(res, 'Task not found');
+    }
+    const updatedTask = await prisma.task.update({
+      where: {
+        id: task.id
+      },
+      data: {
+        assigneeId: AssigneeID
+      }
+    })
+    response_201(res, 'Task assigned successfully', updatedTask);
+
+  }
+  catch(error)
+  {
+    response_500(res, 'Error assigning task', error);
+  }
+}
