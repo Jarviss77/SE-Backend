@@ -1,6 +1,7 @@
 import prisma from '../config/db.config.js';
 import { response_201, response_400, response_500,response_200, response_404 } from '../utils/statuscodes.utils.js';
 import { userRole } from '@prisma/client';
+import { randomInt } from 'crypto';
 
 export async function createOrganisation ( req, res) {
     try {
@@ -63,6 +64,9 @@ export async function addMemberToOrganization (req, res) {
         },
       });
 
+      if(organization.createdById === req.user.id){
+        return response_400(res, "You cannot add yourself to the organization");
+      }
       if (!organization) {
         response_404(res, 'Organization not found');
       }
@@ -95,13 +99,12 @@ export async function addMemberToOrganization (req, res) {
 
       response_200(res, 'Member added to organization');
     } catch (error) {
-      response_400(res, 'Error adding member to organization:', error.message);
+      response_500(res, 'Error adding member to organization:', error);
     }
   }
 
 export async function deleteMemberFromOrg (req, res){
     try {
-
         const memberExist = await prisma.member.findUnique({
           where: {
               id: req.params.id
@@ -112,14 +115,68 @@ export async function deleteMemberFromOrg (req, res){
           response_404(res, 'Member not found');
         }
 
-        const member = await prisma.member.delete({
+        const todotasks = await prisma.task.findMany({
             where: {
-              id : memberExist.id,
-              }
+                assigneeId: memberExist.id
             }
-            );
+        });
 
-        response_200(res, "Member removed from organization", member);
+        if(todotasks){
+            todotasks.map(async (task) => {
+                await prisma.task.update({
+                    where: {
+                        id: task.id
+                    },
+                    data: {
+                        assigneeId: null
+                    }
+                })
+            })
+        }
+
+        const assignedtasks =  prisma.task.findMany({
+            where: {
+                assignerId: memberExist.id
+            }
+        });
+
+        const assigners = await prisma.member.findMany({
+            where: {
+                UserRole: userRole.ASSIGNER,
+                id: {
+                    not: memberExist.id
+                }
+            },
+        });
+
+        console.log(assigners);
+
+        if(assigners.length <= 1){
+            return response_400(res, "Only one assigner left in the organization");
+        }
+        if(assignedtasks){
+            assignedtasks.map(async (task) => {
+                await prisma.task.update({
+                    where: {
+                        id: task.id
+                    },
+                    data: {
+                        assignerId: assigners[randomInt(0, assigners.length - 1)].id
+                    }
+                })
+            })
+        }
+
+        const member = prisma.member.delete({
+                where: {
+                    id : memberExist.id,
+                }
+            }
+        );
+
+        await prisma.$transaction([todotasks, assignedtasks, member]);
+
+        return response_200(res, "Member removed from organization", {member, assigners, assignedtasks, todotasks});
     } catch (error) {
         response_500(res, 'Error deleting member from organization:', error);
     }
