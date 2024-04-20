@@ -27,7 +27,7 @@ export async function getmember(req, res) {
         return response_200(res, "Member found", member);
     }
     catch (error){
-        response_500("Server Error", error);
+        response_500(res, "Server Error", error);
     }
 }
 
