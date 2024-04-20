@@ -1,5 +1,6 @@
+import { check } from 'prisma';
 import prisma from '../config/db.config.js';
-import { response_201, response_400, response_500 } from '../utils/statuscodes.utils.js';
+import { response_200, response_201, response_400, response_500 } from '../utils/statuscodes.utils.js';
 
 
 export async function createTask(req, res) {
@@ -60,5 +61,32 @@ export async function assignTask(req,res){
   catch(error)
   {
     response_500(res, 'Error assigning task', error);
+  }
+}
+
+
+export async function getUnassignedTasks(req,res){
+  try{
+        const organisationId = req.params.id;
+        console.log(req.params.id)
+        const checkOrganisation = await prisma.organization.findUnique({
+          where: {
+            id : organisationId
+          }
+        })
+        if(!checkOrganisation){
+          response_400(res, "Organisation Not Found")
+        }
+        const unassignedTasks = await prisma.task.findMany({
+          where: {
+            OrganizationId: organisationId,
+            Assignee : null
+          }
+        })
+        response_200(res, "Unassigned Tasks Returned", unassignedTasks);
+  }
+  catch(error)
+  {
+    response_500(res, 'Unable to return unassigned tasks', error);
   }
 }
