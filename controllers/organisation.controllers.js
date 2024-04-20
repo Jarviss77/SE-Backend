@@ -101,37 +101,50 @@ export async function addMemberToOrganization (req, res) {
 
 export async function deleteMemberFromOrg (req, res){
     try {
-        const { organizationId, userId } = req.body;
 
-        // Check if organization exists
-        const organization = await prisma.organization.findUnique({
-          where: { id: organizationId },
-        });
-        if (!organization) {
-          response_404(res, 'Organization not found');
-        }
-        // check if member exist
         const memberExist = await prisma.member.findUnique({
           where: {
-            OrganizationId: organizationId,
-            UserId: userId,
+              id: req.params.id
           }
         });
+
         if (!memberExist) {
           response_404(res, 'Member not found');
         }
-
-        console.log(memberExist);
 
         const member = await prisma.member.delete({
             where: {
               id : memberExist.id,
               }
             }
-);
+            );
 
         response_200(res, "Member removed from organization", member);
     } catch (error) {
         response_500(res, 'Error deleting member from organization:', error);
+    }
+}
+
+export async function getmembers(req, res){
+    try{
+        const { organisationId } = req.body;
+
+        const members = await prisma.member.findMany({
+            where: {
+                OrganizationId: organisationId
+            },
+            include: {
+                User: true
+            }
+        });
+
+        if(!members){
+            return response_400(res, "Members not found");
+        }
+
+        return response_200(res, "Members fetched successfully", members);
+    }
+    catch(error) {
+        response_500(res, 'Error getting members:', error);
     }
 }
