@@ -1,4 +1,5 @@
 import { check } from 'prisma';
+import { taskStatus } from '@prisma/client';
 import prisma from '../config/db.config.js';
 import { response_200, response_201, response_400, response_500 } from '../utils/statuscodes.utils.js';
 
@@ -88,5 +89,34 @@ export async function getUnassignedTasks(req,res){
   catch(error)
   {
     response_500(res, 'Unable to return unassigned tasks', error);
+  }
+}
+export async function taskCompleted(req, res) {
+  try {
+    const taskId = req.params.id;
+    
+    const task = await prisma.task.findUnique({
+      where: {
+        id: taskId
+      }
+    });
+    if (!task) {
+      return response_400(res, "Task Not Found");
+    }
+    if (!task.assigneeId) {
+      return response_400(res, "Task not assigned due to absence of an assignee");
+    }
+    const updatedTask = await prisma.task.update({
+      where: {
+        id: task.id
+      },
+      data: {
+        Status: taskStatus.COMPLETED
+      }
+    });
+    return response_200(res, "Task Completed Successfully", updatedTask);
+  } catch (error) {
+    console.error("Error marking task as completed:", error);
+    return response_500(res, 'Could not mark task as completed', error.message);
   }
 }
