@@ -205,3 +205,15 @@ export async function getmembers(req, res){
         response_500(res, 'Error getting members:', error);
     }
 }
+
+
+export async function getOrganisations(req,res){
+  try{
+    const organisations = await prisma.organization.findMany();
+        response_200(res, "organisations fetched successfully",organisations);
+  }
+  catch(error)
+  {
+    response_500(res, 'Error getting UserId:', error);
+  }
+}
