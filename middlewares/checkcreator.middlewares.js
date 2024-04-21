@@ -4,7 +4,7 @@ import prisma from '../config/db.config.js';
 export async function checkCreator(req, res, next) {
 
     try {
-        const memberId = req.body.id;
+        const memberId = req.params.id;
 
         const member = await prisma.member.findUnique({
             where: {
