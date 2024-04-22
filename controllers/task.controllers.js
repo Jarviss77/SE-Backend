@@ -6,7 +6,7 @@ import { response_200, response_201, response_400, response_500 } from '../utils
 
 export async function createTask(req, res) {
   try {
-    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId } = req.body;
+    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId, Points } = req.body;
 
     const organisation = await prisma.organization.findUnique({
       where: {
@@ -26,7 +26,8 @@ export async function createTask(req, res) {
         assignerId: AssignerId,
         OrganizationId,
         StartDate,
-        EndDate
+        EndDate, 
+        Points
       }
     });
 
@@ -39,7 +40,7 @@ export async function createTask(req, res) {
 
 export async function assignTask(req,res){
   try {
-    const { AssigneeID } = req.body;
+    const { AssigneeID, Points } = req.body;
     const task = await prisma.task.findUnique({
       where: {
         id: req.params.id
@@ -53,7 +54,8 @@ export async function assignTask(req,res){
         id: task.id
       },
       data: {
-        assigneeId: AssigneeID
+        assigneeId: AssigneeID,
+        Points: Points
       }
     })
     response_201(res, 'Task assigned successfully', updatedTask);
