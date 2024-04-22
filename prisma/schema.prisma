@@ -68,5 +68,6 @@ model Task {
   Organization   Organization @relation(fields: [OrganizationId], references: [id])
   StartDate      DateTime     @default(now())
   EndDate        DateTime
-  progress       Int          @default(25)      
+  progress       Int          @default(25)     
+  Points         Int          @default(10) 
 }
