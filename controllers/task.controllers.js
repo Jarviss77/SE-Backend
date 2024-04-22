@@ -108,6 +108,20 @@ export async function taskCompleted(req, res) {
     if (!task.assigneeId) {
       return response_400(res, "Task not assigned due to absence of an assignee");
     }
+    const assignee = await prisma.user.findUnique({
+      where: {
+        id: task.assigneeId
+      }
+    });
+    const updatedpoints = assignee.points + task.points;
+    const updatedAssignee = await prisma.user.update({
+      where: {
+        id: task.assigneeId
+      },
+      data: {
+        points: updatedpoints
+      }
+    });
     const updatedTask = await prisma.task.update({
       where: {
         id: task.id
@@ -116,6 +130,7 @@ export async function taskCompleted(req, res) {
         Status: taskStatus.COMPLETED
       }
     });
+    
     return response_200(res, "Task Completed Successfully", updatedTask);
   } catch (error) {
     console.error("Error marking task as completed:", error);
