@@ -95,43 +95,60 @@ export async function getUnassignedTasks(req,res){
 }
 export async function taskCompleted(req, res) {
   try {
-    const taskId = req.params.id;
+    const {taskId, memberId} = req.body;
     
     const task = await prisma.task.findUnique({
       where: {
         id: taskId
       }
     });
+
     if (!task) {
       return response_400(res, "Task Not Found");
     }
     if (!task.assigneeId) {
       return response_400(res, "Task not assigned due to absence of an assignee");
     }
-    const assignee = await prisma.user.findUnique({
+    if(task.Status === taskStatus.COMPLETED){
+      return response_400(res, "Task already marked as completed");
+    }
+    
+    const assignee = await prisma.member.findUnique({
       where: {
         id: task.assigneeId
       }
     });
-    const updatedpoints = assignee.points + task.points;
-    const updatedAssignee = await prisma.user.update({
+    const member = await prisma.member.findUnique({
       where: {
-        id: task.assigneeId
-      },
-      data: {
-        points: updatedpoints
-      }
-    });
-    const updatedTask = await prisma.task.update({
-      where: {
-        id: task.id
-      },
-      data: {
-        Status: taskStatus.COMPLETED
+        id: memberId
       }
     });
     
-    return response_200(res, "Task Completed Successfully", updatedTask);
+    if(task.assigneeId === member.id || task.assignerId === member.id){
+      const updatedpoints = assignee.Points + task.Points;
+      const updatedAssignee = await prisma.member.update({
+        where: {
+          id: task.assigneeId
+        },
+        data: {
+          Points: updatedpoints
+        }
+      });
+      const updatedTask = await prisma.task.update({
+        where: {
+          id: task.id
+        },
+        data: {
+          Status: taskStatus.COMPLETED
+        }
+      });
+      console.log(member);
+      return response_200(res, "Task Completed Successfully", updatedTask);
+    }
+    else{
+      return response_400(res, "You are not authorized to mark this task as completed");
+    }
+    
   } catch (error) {
     console.error("Error marking task as completed:", error);
     return response_500(res, 'Could not mark task as completed', error.message);

@@ -8,6 +8,6 @@ const router = express.Router();
 router.route('/create').post(authVerify, isAssigner, createTask);
 router.route('/assign/:id').patch(authVerify, assignTask);
 router.route('/getUnassignedTasks/:id').get(authVerify, getUnassignedTasks);
-router.route('/taskCompleted/:id').patch(authVerify, taskCompleted);
+router.route('/taskCompleted/').patch(authVerify, taskCompleted);
 
 export default router;
