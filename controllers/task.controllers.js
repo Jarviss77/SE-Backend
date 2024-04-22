@@ -6,7 +6,7 @@ import { response_200, response_201, response_400, response_500 } from '../utils
 
 export async function createTask(req, res) {
   try {
-    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId } = req.body;
+    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId, Points } = req.body;
 
     const organisation = await prisma.organization.findUnique({
       where: {
@@ -26,7 +26,8 @@ export async function createTask(req, res) {
         assignerId: AssignerId,
         OrganizationId,
         StartDate,
-        EndDate
+        EndDate, 
+        Points
       }
     });
 
@@ -39,7 +40,7 @@ export async function createTask(req, res) {
 
 export async function assignTask(req,res){
   try {
-    const { AssigneeID } = req.body;
+    const { AssigneeID, Points } = req.body;
     const task = await prisma.task.findUnique({
       where: {
         id: req.params.id
@@ -53,7 +54,8 @@ export async function assignTask(req,res){
         id: task.id
       },
       data: {
-        assigneeId: AssigneeID
+        assigneeId: AssigneeID,
+        Points: Points
       }
     })
     response_201(res, 'Task assigned successfully', updatedTask);
@@ -93,28 +95,60 @@ export async function getUnassignedTasks(req,res){
 }
 export async function taskCompleted(req, res) {
   try {
-    const taskId = req.params.id;
+    const {taskId, memberId} = req.body;
     
     const task = await prisma.task.findUnique({
       where: {
         id: taskId
       }
     });
+
     if (!task) {
       return response_400(res, "Task Not Found");
     }
     if (!task.assigneeId) {
       return response_400(res, "Task not assigned due to absence of an assignee");
     }
-    const updatedTask = await prisma.task.update({
+    if(task.Status === taskStatus.COMPLETED){
+      return response_400(res, "Task already marked as completed");
+    }
+    
+    const assignee = await prisma.member.findUnique({
       where: {
-        id: task.id
-      },
-      data: {
-        Status: taskStatus.COMPLETED
+        id: task.assigneeId
       }
     });
-    return response_200(res, "Task Completed Successfully", updatedTask);
+    const member = await prisma.member.findUnique({
+      where: {
+        id: memberId
+      }
+    });
+    
+    if(task.assigneeId === member.id || task.assignerId === member.id){
+      const updatedpoints = assignee.Points + task.Points;
+      const updatedAssignee = await prisma.member.update({
+        where: {
+          id: task.assigneeId
+        },
+        data: {
+          Points: updatedpoints
+        }
+      });
+      const updatedTask = await prisma.task.update({
+        where: {
+          id: task.id
+        },
+        data: {
+          Status: taskStatus.COMPLETED
+        }
+      });
+      console.log(member);
+      return response_200(res, "Task Completed Successfully", updatedTask);
+    }
+    else{
+      return response_400(res, "You are not authorized to mark this task as completed");
+    }
+    
   } catch (error) {
     console.error("Error marking task as completed:", error);
     return response_500(res, 'Could not mark task as completed', error.message);
