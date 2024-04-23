@@ -6,7 +6,7 @@ import { response_200, response_201, response_400, response_500 } from '../utils
 
 export async function createTask(req, res) {
   try {
-    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId, Points } = req.body;
+    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId, Points, dependentTasksIds, dependencyOfTasksIds } = req.body;
 
     const organisation = await prisma.organization.findUnique({
       where: {
@@ -26,8 +26,8 @@ export async function createTask(req, res) {
         assignerId: AssignerId,
         OrganizationId,
         StartDate,
-        EndDate, 
-        Points
+        EndDate,
+        Points,
       }
     });
 
@@ -96,7 +96,7 @@ export async function getUnassignedTasks(req,res){
 export async function taskCompleted(req, res) {
   try {
     const {taskId, memberId} = req.body;
-    
+
     const task = await prisma.task.findUnique({
       where: {
         id: taskId
@@ -112,7 +112,7 @@ export async function taskCompleted(req, res) {
     if(task.Status === taskStatus.COMPLETED){
       return response_400(res, "Task already marked as completed");
     }
-    
+
     const assignee = await prisma.member.findUnique({
       where: {
         id: task.assigneeId
@@ -123,7 +123,7 @@ export async function taskCompleted(req, res) {
         id: memberId
       }
     });
-    
+
     if(task.assigneeId === member.id || task.assignerId === member.id){
       const updatedpoints = assignee.Points + task.Points;
       const updatedAssignee = await prisma.member.update({
@@ -142,13 +142,14 @@ export async function taskCompleted(req, res) {
           Status: taskStatus.COMPLETED
         }
       });
+
       console.log(member);
       return response_200(res, "Task Completed Successfully", updatedTask);
     }
     else{
       return response_400(res, "You are not authorized to mark this task as completed");
     }
-    
+
   } catch (error) {
     console.error("Error marking task as completed:", error);
     return response_500(res, 'Could not mark task as completed', error.message);
