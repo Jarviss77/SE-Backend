@@ -50,9 +50,7 @@ export async function createTask(req, res) {
             },
             data: {
                 dependentTasksIds: {
-                push: {
-                    id: newTask.id
-                }
+                push: newTask.id
                 }
             }
             });
@@ -113,6 +111,9 @@ export async function getUnassignedTasks(req,res){
           where: {
             OrganizationId: organisationId,
             Assignee : null
+          },
+          include: {
+            dependentTasks: true
           }
         })
         response_200(res, "Unassigned Tasks Returned", unassignedTasks);

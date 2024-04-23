@@ -59,6 +59,7 @@ export async function getGantt ( req, res) {
                         }
                   }
               },
+                dependentTasks: true,
             },
           },
           Member: true
