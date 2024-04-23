@@ -64,14 +64,14 @@ export async function login(req, res){
 
         if (!user) {
             console.log('Error logging in: User does not exist');
-            return response_200(res,'User does not exist');
+            return response_400(res,'Username or Password Incorrect');
         }
 
         const validPassword = await bcrypt.compare(password, user.Password);
 
         if (!validPassword) {
             console.log('Error logging in: Password is incorrect');
-            return response_200(res,'Password is incorrect');
+            return response_400(res,'Username or Password Incorrect');
         }
 
         const token = jwt.sign({userID: user.id, FirstName: user.FirstName,  LastName:user.LastName },JWT_SECRET,{expiresIn:'2d'})

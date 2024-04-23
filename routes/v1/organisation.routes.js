@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     createOrganisation,
-    getOrganisation,
+    getGantt,
     addMemberToOrganization,
     deleteMemberFromOrg,
     getmembers,
@@ -13,7 +13,7 @@ import { checkCreator } from '../../middlewares/checkcreator.middlewares.js';
 const router = express.Router();
 
 router.route('/create').post(authVerify, createOrganisation);
-router.route('/get/:id').get(authVerify, getOrganisation);
+router.route('/get/:id').get(authVerify, getGantt);
 router.route('/addMember').post(authVerify, addMemberToOrganization);
 router.route('/deleteMember/:id').delete(authVerify, checkCreator, deleteMemberFromOrg);
 router.route('/getMembers').get(authVerify, getmembers);

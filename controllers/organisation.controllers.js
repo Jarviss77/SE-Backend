@@ -30,21 +30,61 @@ export async function createOrganisation ( req, res) {
   }
 
 
-export async function getOrganisation ( req, res) {
+export async function getGantt ( req, res) {
     try {
       const organisation = await prisma.organization.findUnique({
         where: {
           id: req.params.id,
         },
         include: {
-          Tasks: true,
+          Tasks: {
+            include: {
+              Assignee: {
+                    include : {
+                            User: {
+                                select: {
+                                    FirstName: true,
+                                    LastName: true
+                                }
+                            }
+                    }
+              },
+              Assigner: {
+                  include : {
+                        User: {
+                            select: {
+                                FirstName: true,
+                                LastName: true
+                            }
+                        }
+                  }
+              },
+            },
+          },
           Member: true
         }
       });
       if(!organisation){
         return response_400(res, "Organisation not found");
       }
-      response_201(res, "Organisation Found", organisation);
+
+      const tasks = organisation.Tasks.map((task) => {
+        return {
+          id: task.id,
+          title: task.Title,
+          start_date: task.StartDate,
+          end_date: task.EndDate,
+            points: task.Points,
+            progress: task.progress,
+            description: task.Description,
+            status: task.Status,
+            parents: task.dependentTasks,
+            dependencyOf: task.dependencyOfTasks,
+          assignee_name: task.Assignee.User.FirstName + " " + task.Assignee.User.LastName,
+          assigner_name: task.Assigner.User.FirstName + " " + task.Assigner.User.LastName,
+        }
+      });
+      response_201(res, "Organisation Found", tasks);
     } catch (error) {
       response_500(res, 'Error getting organization:', error);
     }
@@ -55,6 +95,8 @@ export async function addMemberToOrganization (req, res) {
       // Extract organization ID, user ID, and user role from request
       const { organisationId, userId, userRole } = req.body;
 
+      console.log(organisationId, userId, userRole);
+
       // Check if organization exists
       const organization = await prisma.organization.findUnique({
         where: { id: organisationId },
@@ -63,17 +105,19 @@ export async function addMemberToOrganization (req, res) {
           Tasks: true
         },
       });
-
+      console.log(organization);
+      if (!organization) {
+          return response_404(res, 'Organization not found');
+      }
       if(organization.createdById === req.user.id){
         return response_400(res, "You cannot add yourself to the organization");
       }
-      if (!organization) {
-        response_404(res, 'Organization not found');
-      }
+
       // Check if user exists
       const user = await prisma.user.findUnique({ where: { id: userId } });
+
       if (!user) {
-        response_404(res, 'User not found');
+       return response_404(res, 'User not found');
       }
 
       // Check if user is already a member of the organization
@@ -83,13 +127,14 @@ export async function addMemberToOrganization (req, res) {
           UserId: userId,
         },
       });
+      console.log(existingMember);
 
       if (existingMember) {
         response_400(res, 'User is already a member of the organization');
       }
 
       // Add member to the organization
-      await prisma.member.create({
+      const member = await prisma.member.create({
         data: {
           UserId: userId,
           OrganizationId: organisationId,
@@ -97,7 +142,13 @@ export async function addMemberToOrganization (req, res) {
         },
       });
 
-      response_200(res, 'Member added to organization');
+      console.log(member);
+
+      return response_200(res, 'Member added to organization', {
+          AddedMember: member,
+            Organization: organization,
+      });
+
     } catch (error) {
       response_500(res, 'Error adding member to organization:', error);
     }
