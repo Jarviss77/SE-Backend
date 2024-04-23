@@ -30,7 +30,7 @@ export async function createOrganisation ( req, res) {
   }
 
 
-export async function getGanttcontroller ( req, res) {
+export async function getGantt ( req, res) {
     try {
       const organisation = await prisma.organization.findUnique({
         where: {
