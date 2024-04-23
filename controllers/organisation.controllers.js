@@ -30,7 +30,7 @@ export async function createOrganisation ( req, res) {
   }
 
 
-export async function getOrganisation ( req, res) {
+export async function getGanttcontroller ( req, res) {
     try {
       const organisation = await prisma.organization.findUnique({
         where: {
@@ -39,8 +39,20 @@ export async function getOrganisation ( req, res) {
         include: {
           Tasks: {
             include: {
-              Assignee: true,
-              Assigner: true,
+              Assignee: {
+                select: {
+                  FirstName: true,
+                  LastName: true,
+                  Email: true,
+                },
+              },
+              Assigner: {
+                select: {
+                  FirstName: true,
+                  LastName: true,
+                  Email: true,
+                }
+              },
             },
           },
           Member: true
@@ -49,7 +61,19 @@ export async function getOrganisation ( req, res) {
       if(!organisation){
         return response_400(res, "Organisation not found");
       }
-      response_201(res, "Organisation Found", organisation);
+
+      const tasks = organisation.Tasks.map((task) => {
+        return {
+          id: task.id,
+          title: task.Title,
+          start_date: task.StartDate,
+          end_date: task.EndDate,
+          parents: task.dependentTasksIds,
+          assignee_name: task.Assignee.FirstName + " " + task.Assignee.LastName,
+          assigner: task.Assigner.FirstName + " " + task.Assigner.LastName,
+        }
+      });
+      response_201(res, "Organisation Found", tasks);
     } catch (error) {
       response_500(res, 'Error getting organization:', error);
     }
