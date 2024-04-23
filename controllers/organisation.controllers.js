@@ -37,7 +37,12 @@ export async function getOrganisation ( req, res) {
           id: req.params.id,
         },
         include: {
-          Tasks: true,
+          Tasks: {
+            include: {
+              Assignee: true,
+              Assigner: true,
+            },
+          },
           Member: true
         }
       });
@@ -55,6 +60,8 @@ export async function addMemberToOrganization (req, res) {
       // Extract organization ID, user ID, and user role from request
       const { organisationId, userId, userRole } = req.body;
 
+      console.log(organisationId, userId, userRole);
+
       // Check if organization exists
       const organization = await prisma.organization.findUnique({
         where: { id: organisationId },
@@ -63,17 +70,19 @@ export async function addMemberToOrganization (req, res) {
           Tasks: true
         },
       });
-
+      console.log(organization);
+      if (!organization) {
+          return response_404(res, 'Organization not found');
+      }
       if(organization.createdById === req.user.id){
         return response_400(res, "You cannot add yourself to the organization");
       }
-      if (!organization) {
-        response_404(res, 'Organization not found');
-      }
+
       // Check if user exists
       const user = await prisma.user.findUnique({ where: { id: userId } });
+
       if (!user) {
-        response_404(res, 'User not found');
+       return response_404(res, 'User not found');
       }
 
       // Check if user is already a member of the organization
@@ -83,13 +92,14 @@ export async function addMemberToOrganization (req, res) {
           UserId: userId,
         },
       });
+      console.log(existingMember);
 
       if (existingMember) {
         response_400(res, 'User is already a member of the organization');
       }
 
       // Add member to the organization
-      await prisma.member.create({
+      const member = await prisma.member.create({
         data: {
           UserId: userId,
           OrganizationId: organisationId,
@@ -97,7 +107,13 @@ export async function addMemberToOrganization (req, res) {
         },
       });
 
-      response_200(res, 'Member added to organization');
+      console.log(member);
+
+      return response_200(res, 'Member added to organization', {
+          AddedMember: member,
+            Organization: organization,
+      });
+
     } catch (error) {
       response_500(res, 'Error adding member to organization:', error);
     }

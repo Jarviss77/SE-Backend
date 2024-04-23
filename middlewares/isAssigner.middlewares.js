@@ -1,16 +1,19 @@
-import { response_200, response_500 } from "../utils/statuscodes.utils.js";
+import { response_200, response_400, response_500 } from '../utils/statuscodes.utils.js';
 import prisma from '../config/db.config.js';
 
 export async function isAssigner(req, res)  {
   try {
-    // Extract user ID from request
-    const memberId = req.body.id;
-    // Fetch user membership
-    const member = await prisma.member.findUnique({
+
+    const member = await prisma.member.findFirst({
       where: {
-        id: memberId,
+        UserId: req.user.id,
+        OrganizationId: req.body.OrganizationId,
       }
     });
+
+    if(!member){
+        return response_400(res, 'User not found in organization');
+    }
 
     console.log(member);
     // Extract user role from membership
