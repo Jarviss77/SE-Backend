@@ -6,7 +6,7 @@ import { response_200, response_201, response_400, response_500 } from '../utils
 
 export async function createTask(req, res) {
   try {
-    const { Title, Description, OrganizationId, StartDate, EndDate, AssignerId, Points, dependentTasksIds } = req.body;
+    const { Title, Description, OrganizationId, StartDate, EndDate, Points, dependentTasksIds } = req.body;
 
     const organisation = await prisma.organization.findUnique({
       where: {
@@ -17,21 +17,18 @@ export async function createTask(req, res) {
     if (!organisation) {
         return response_400(res, 'Organisation does not exist');
     }
-    console.log(dependentTasksIds);
 
     const newTask = await prisma.task.create({
       data: {
         Title: Title,
         Description: Description,
-        assignerId: AssignerId,
+        assignerId: req.member.id,
         OrganizationId: OrganizationId,
         StartDate: StartDate,
         EndDate: EndDate,
         Points: Points,
         Status: taskStatus.PENDING,
-        dependentTasksIds: {
-          push: dependentTasksIds
-        }
+        dependentTasksIds: dependentTasksIds
       }
     });
     console.log(newTask);
@@ -53,7 +50,7 @@ export async function createTask(req, res) {
             },
             data: {
                 dependentTasksIds: {
-                connect: {
+                push: {
                     id: newTask.id
                 }
                 }

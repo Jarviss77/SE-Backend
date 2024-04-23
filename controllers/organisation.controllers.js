@@ -231,7 +231,7 @@ export async function deleteMemberFromOrg (req, res){
 
 export async function getmembers(req, res){
     try{
-        const { organisationId } = req.body;
+        const organisationId  = req.params.id;
 
         const members = await prisma.member.findMany({
             where: {

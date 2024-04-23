@@ -22,7 +22,9 @@ export async function isAssigner(req, res, next)  {
 
     // Check if user is an assignee
     if (UserRole === userRole.ASSIGNER) {
-      next();
+
+        req.member = member;
+        next();
     }
   } catch (error) {
     // Handle errors
