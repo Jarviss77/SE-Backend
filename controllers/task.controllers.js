@@ -154,3 +154,39 @@ export async function taskCompleted(req, res) {
     return response_500(res, 'Could not mark task as completed', error.message);
   }
 }
+
+export async function updateTask(res, req){
+  try{
+      const taskId = req.params.id;
+      const {memberId, assigneeId, points, endDate} = req.body;
+      const task = await prisma.task.findUnique({
+        where: {
+          id: taskId
+        }
+      });
+      if(memberId !== task.assignerId){
+        return response_400(res, 'You are not authorized to update this task');
+      }
+      const newAssignee = await prisma.member.findUnique({
+        where: {
+          id: assigneeId
+        }
+      });
+      const updatedTask = await prisma.task.update({
+        where: {
+          id: taskId
+        },
+        data: {
+          assigneeId: assigneeId,
+          Points: points,
+          EndDate: endDate
+        }
+      });
+      return response_200(res, 'Task Updated Successfully', updatedTask);
+  }
+  catch(error)
+  {
+    response_500(res, 'Error updating task', error);
+  }
+}
+
