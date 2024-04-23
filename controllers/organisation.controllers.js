@@ -92,12 +92,9 @@ export async function getGantt ( req, res) {
 
 export async function addMemberToOrganization (req, res) {
     try {
-      // Extract organization ID, user ID, and user role from request
+
       const { organisationId, userId, userRole } = req.body;
 
-      console.log(organisationId, userId, userRole);
-
-      // Check if organization exists
       const organization = await prisma.organization.findUnique({
         where: { id: organisationId },
         include: {
@@ -105,7 +102,7 @@ export async function addMemberToOrganization (req, res) {
           Tasks: true
         },
       });
-      console.log(organization);
+
       if (!organization) {
           return response_404(res, 'Organization not found');
       }
@@ -113,24 +110,26 @@ export async function addMemberToOrganization (req, res) {
         return response_400(res, "You cannot add yourself to the organization");
       }
 
-      // Check if user exists
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const user = await prisma.user.findUnique({
+          where: {
+              id: userId
+          }
+      });
 
       if (!user) {
        return response_404(res, 'User not found');
       }
 
-      // Check if user is already a member of the organization
-      const existingMember = await prisma.member.findFirst({
+      const existingMember = await prisma.member.findMany({
         where: {
-          OrganizationId: organisationId,
           UserId: userId,
-        },
+          OrganizationId: organisationId
+      }
       });
       console.log(existingMember);
 
-      if (existingMember) {
-        response_400(res, 'User is already a member of the organization');
+      if (existingMember.length !== 0) {
+        return response_400(res, 'User is already a member of the organization');
       }
 
       // Add member to the organization
@@ -142,11 +141,8 @@ export async function addMemberToOrganization (req, res) {
         },
       });
 
-      console.log(member);
-
       return response_200(res, 'Member added to organization', {
           AddedMember: member,
-            Organization: organization,
       });
 
     } catch (error) {
