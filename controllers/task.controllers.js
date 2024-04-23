@@ -17,22 +17,51 @@ export async function createTask(req, res) {
     if (!organisation) {
         return response_400(res, 'Organisation does not exist');
     }
-
+    console.log(dependentTasksIds);
 
     const newTask = await prisma.task.create({
       data: {
-        Title,
-        Description,
+        Title: Title,
+        Description: Description,
         assignerId: AssignerId,
-        OrganizationId,
-        StartDate,
-        EndDate,
-        Points,
-        $push: {
-            dependentTasksIds
+        OrganizationId: OrganizationId,
+        StartDate: StartDate,
+        EndDate: EndDate,
+        Points: Points,
+        Status: taskStatus.PENDING,
+        dependentTasksIds: {
+          push: dependentTasksIds
         }
       }
     });
+    console.log(newTask);
+
+    const dependentTasks = await prisma.task.findMany({
+      where: {
+        id: {
+          in: dependentTasksIds
+        }
+      }
+    });
+
+    if(dependentTasks.length > 0){
+        for (let i = 0; i < dependentTasks.length; i++) {
+            const task = dependentTasks[i];
+            await prisma.task.update({
+            where: {
+                id: task.id
+            },
+            data: {
+                dependentTasksIds: {
+                connect: {
+                    id: newTask.id
+                }
+                }
+            }
+            });
+        }
+    }
+
 
     response_201(res,"Task Created", newTask);
 

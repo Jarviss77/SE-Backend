@@ -1,7 +1,8 @@
 import { response_200, response_400, response_500 } from '../utils/statuscodes.utils.js';
 import prisma from '../config/db.config.js';
+import { userRole } from '@prisma/client';
 
-export async function isAssigner(req, res)  {
+export async function isAssigner(req, res, next)  {
   try {
 
     const member = await prisma.member.findFirst({
@@ -17,10 +18,10 @@ export async function isAssigner(req, res)  {
 
     console.log(member);
     // Extract user role from membership
-    const userRole = member.UserRole;
+    const UserRole = member.UserRole;
 
     // Check if user is an assignee
-    if (userRole === 'ASSIGNER') {
+    if (UserRole === userRole.ASSIGNER) {
       next();
     }
   } catch (error) {

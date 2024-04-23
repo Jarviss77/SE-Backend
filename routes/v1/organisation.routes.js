@@ -5,7 +5,7 @@ import {
     addMemberToOrganization,
     deleteMemberFromOrg,
     getmembers,
-    getOrganisations
+    getOrganisations, getAssigners
 } from '../../controllers/organisation.controllers.js';
 import { authVerify } from '../../middlewares/auth.middlewares.js';
 import { checkCreator } from '../../middlewares/checkcreator.middlewares.js';
@@ -18,5 +18,6 @@ router.route('/addMember').post(authVerify, addMemberToOrganization);
 router.route('/deleteMember/:id').delete(authVerify, checkCreator, deleteMemberFromOrg);
 router.route('/getMembers').get(authVerify, getmembers);
 router.route('/getOrganisations').get(authVerify, getOrganisations);
+router.route('/getAssigners/:id').get(authVerify, getAssigners);
 
 export default router;

@@ -264,3 +264,25 @@ export async function getOrganisations(req,res){
     response_500(res, 'Error getting UserId:', error);
   }
 }
+
+export async function getAssigners(req,res){
+    try{
+        const organisationId  = req.params.id;
+
+        const assigner = await prisma.member.findMany({
+            where: {
+                OrganizationId: organisationId,
+                UserRole: userRole.ASSIGNER
+            }
+        });
+
+        if(!assigner){
+            return response_400(res, "No Assigners found");
+        }
+
+        return response_200(res, "Assigners fetched successfully", assigner);
+    }
+    catch(error) {
+        response_500(res, 'Error getting Assigners:', error);
+    }
+}
