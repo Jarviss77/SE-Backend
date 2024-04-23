@@ -40,18 +40,24 @@ export async function getGanttcontroller ( req, res) {
           Tasks: {
             include: {
               Assignee: {
-                select: {
-                  FirstName: true,
-                  LastName: true,
-                  Email: true,
-                },
+                    include : {
+                            User: {
+                                select: {
+                                    FirstName: true,
+                                    LastName: true
+                                }
+                            }
+                    }
               },
               Assigner: {
-                select: {
-                  FirstName: true,
-                  LastName: true,
-                  Email: true,
-                }
+                  include : {
+                        User: {
+                            select: {
+                                FirstName: true,
+                                LastName: true
+                            }
+                        }
+                  }
               },
             },
           },
@@ -68,9 +74,14 @@ export async function getGanttcontroller ( req, res) {
           title: task.Title,
           start_date: task.StartDate,
           end_date: task.EndDate,
-          parents: task.dependentTasksIds,
-          assignee_name: task.Assignee.FirstName + " " + task.Assignee.LastName,
-          assigner: task.Assigner.FirstName + " " + task.Assigner.LastName,
+            points: task.Points,
+            progress: task.progress,
+            description: task.Description,
+            status: task.Status,
+            parents: task.dependentTasks,
+            dependencyOf: task.dependencyOfTasks,
+          assignee_name: task.Assignee.User.FirstName + " " + task.Assignee.User.LastName,
+          assigner_name: task.Assigner.User.FirstName + " " + task.Assigner.User.LastName,
         }
       });
       response_201(res, "Organisation Found", tasks);
