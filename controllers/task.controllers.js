@@ -34,31 +34,6 @@ export async function createTask(req, res) {
     });
     console.log(newTask);
 
-    const dependentTasks = await prisma.task.findMany({
-      where: {
-        id: {
-          in: dependentTasksIds
-        }
-      }
-    });
-
-    if(dependentTasks.length > 0){
-        for (let i = 0; i < dependentTasks.length; i++) {
-            const task = dependentTasks[i];
-            await prisma.task.update({
-            where: {
-                id: task.id
-            },
-            data: {
-                dependentTasksIds: {
-                push: newTask.id
-                }
-            }
-            });
-        }
-    }
-
-
     response_201(res,"Task Created", newTask);
 
   } catch (error) {
@@ -194,7 +169,7 @@ export async function updateTask(req, res){
       console.log(taskArr)
       const {memberId, assigneeId, points, endDate, Status} = req.body;
       let status = "";
-     
+
       for(const tsk of taskArr){
         let status = ""
         switch (tsk.Status){
@@ -226,8 +201,8 @@ export async function updateTask(req, res){
         });
         console.log("UPD")
       }
-      
-      
+
+
       return response_200(res, 'Task Updated Successfully', {});
   }
   catch(error)
