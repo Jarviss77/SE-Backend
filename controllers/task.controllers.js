@@ -193,7 +193,26 @@ export async function updateTask(req, res){
       const {taskArr} = req.body
       console.log(taskArr)
       const {memberId, assigneeId, points, endDate, Status} = req.body;
+      let status = "";
+     
       for(const tsk of taskArr){
+        let status = ""
+        switch (tsk.Status){
+          case "Close":
+              status = "COMPLETED"
+              break;
+          case "Open":
+              status = "PENDING"
+              break;
+          case "InProgress":
+              status = "IN_PROGRESS"
+              break;
+          case "Review":
+              status = "IN_REVIEW"
+              break;
+          default:
+              status = "COMPLETED"
+      }
         const updatedTask = await prisma.task.update({
           where: {
             id: tsk.Id
@@ -202,7 +221,7 @@ export async function updateTask(req, res){
             assigneeId: assigneeId,
             Points: points,
             EndDate: endDate,
-            Status: Status
+            Status: status
           }
         });
         console.log("UPD")
