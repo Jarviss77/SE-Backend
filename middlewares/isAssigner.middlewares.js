@@ -26,6 +26,9 @@ export async function isAssigner(req, res, next)  {
         req.member = member;
         next();
     }
+    else {
+      response_400(res, "You are not an Assigner")
+    }
   } catch (error) {
     // Handle errors
     response_500(res, 'Error fetching user:', error);
