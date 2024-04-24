@@ -190,7 +190,7 @@ export async function taskCompleted(req, res) {
 export async function updateTask(res, req){
   try{
       const taskId = req.params.id;
-      const {memberId, assigneeId, points, endDate} = req.body;
+      const {memberId, assigneeId, points, endDate, Status} = req.body;
       const task = await prisma.task.findUnique({
         where: {
           id: taskId
@@ -211,7 +211,8 @@ export async function updateTask(res, req){
         data: {
           assigneeId: assigneeId,
           Points: points,
-          EndDate: endDate
+          EndDate: endDate,
+            Status: Status
         }
       });
       return response_200(res, 'Task Updated Successfully', updatedTask);
