@@ -16,8 +16,9 @@ enum userRole {
 }
 
 enum taskStatus {
-  PENDING
+  TO_DO
   IN_PROGRESS
+  IN_REVIEW
   COMPLETED
 }
 
@@ -59,7 +60,7 @@ model Task {
   id                   String       @id @default(auto()) @map("_id") @db.ObjectId
   Title                String
   Description          String
-  Status               taskStatus   @default(PENDING)
+  Status               taskStatus   @default(TO_DO)
   assignerId           String       @db.ObjectId
   Assigner             Member       @relation(name: "Assigner", fields: [assignerId], references: [id])
   assigneeId           String?      @db.ObjectId
