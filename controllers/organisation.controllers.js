@@ -59,7 +59,6 @@ export async function getGantt ( req, res) {
                         }
                   }
               },
-                dependentTasks: true,
             },
           },
           Member: true
@@ -82,8 +81,7 @@ export async function getGantt ( req, res) {
                 progress: task.progress,
                 description: task.Description,
                 status: task.Status,
-                parents: task.dependentTasks,
-                dependencyOf: task.dependencyOfTasks,
+                parents: task.dependentTasksIds,
                 assignee_name: assigneeName,
                 assigner_name: task.Assigner.User.FirstName + " " + task.Assigner.User.LastName ,
             };
