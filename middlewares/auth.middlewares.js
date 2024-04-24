@@ -30,8 +30,11 @@ function extractPayloadFromToken(decodedToken) {
 }
 
 export async function authVerify(req, res, next) {
-    const token = req.headers.authorization.split(' ')[1];
+    // console.log(req.headers.authorization)
+    
+    // if(!token) return response_500(res, "Server Error", error);
     try {
+        const token = req.headers.authorization.split(' ')[1];
         const decoded = verifyToken(token);
         const payload = extractPayloadFromToken(decoded);
         req.user = { ...payload };
