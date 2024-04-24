@@ -89,7 +89,7 @@ export async function getGantt ( req, res) {
             };
         });
 
-      response_201(res, "Organisation Found", tasks);
+      response_200(res, "Organisation Found", tasks);
     } catch (error) {
       response_500(res, 'Error getting organization:', error);
     }
