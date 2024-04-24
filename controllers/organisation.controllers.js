@@ -69,22 +69,26 @@ export async function getGantt ( req, res) {
         return response_400(res, "Organisation not found");
       }
 
-      const tasks = organisation.Tasks.map((task) => {
-        return {
-          id: task.id,
-          title: task.Title,
-          start_date: task.StartDate,
-          end_date: task.EndDate,
-            points: task.Points,
-            progress: task.progress,
-            description: task.Description,
-            status: task.Status,
-            parents: task.dependentTasks,
-            dependencyOf: task.dependencyOfTasks,
-          assignee_name: task.Assignee.User.FirstName + " " + task.Assignee.User.LastName,
-          assigner_name: task.Assigner.User.FirstName + " " + task.Assigner.User.LastName,
-        }
-      });
+        const tasks = organisation.Tasks.map((task) => {
+            const assigneeName = task.Assignee && task.Assignee.User ?
+                task.Assignee.User.FirstName + " " + task.Assignee.User.LastName : "Unassigned";
+
+            return {
+                id: task.id,
+                title: task.Title,
+                start_date: task.StartDate,
+                end_date: task.EndDate,
+                points: task.Points,
+                progress: task.progress,
+                description: task.Description,
+                status: task.Status,
+                parents: task.dependentTasks,
+                dependencyOf: task.dependencyOfTasks,
+                assignee_name: assigneeName,
+                assigner_name: task.Assigner.User.FirstName + " " + task.Assigner.User.LastName ,
+            };
+        });
+
       response_201(res, "Organisation Found", tasks);
     } catch (error) {
       response_500(res, 'Error getting organization:', error);
