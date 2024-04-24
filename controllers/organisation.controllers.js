@@ -98,10 +98,10 @@ export async function getGantt ( req, res) {
 export async function addMemberToOrganization (req, res) {
     try {
 
-      const { organisationId, userId, userRole } = req.body;
+      const { OrganisationId, userId, userRole } = req.body;
 
       const organization = await prisma.organization.findUnique({
-        where: { id: organisationId },
+        where: { id: OrganisationId },
         include: {
           Member: true,
           Tasks: true
@@ -128,7 +128,7 @@ export async function addMemberToOrganization (req, res) {
       const existingMember = await prisma.member.findMany({
         where: {
           UserId: userId,
-          OrganizationId: organisationId
+          OrganizationId: OrganisationId
       }
       });
       console.log(existingMember);
@@ -141,7 +141,7 @@ export async function addMemberToOrganization (req, res) {
       const member = await prisma.member.create({
         data: {
           UserId: userId,
-          OrganizationId: organisationId,
+          OrganizationId: OrganisationId,
           UserRole: userRole,
         },
       });

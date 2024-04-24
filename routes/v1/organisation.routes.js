@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.route('/create').post(authVerify, createOrganisation);
 router.route('/get/:id').get(authVerify, getGantt);
-router.route('/addMember').post(authVerify, isAssigner,addMemberToOrganization);
+router.route('/addMember').post(authVerify, isAssigner, addMemberToOrganization);
 router.route('/deleteMember/:id').delete(authVerify, checkCreator, deleteMemberFromOrg);
 router.route('/getMembers/:id').get(authVerify, getmembers);
 router.route('/getOrganisations').get(authVerify, getOrganisations);
