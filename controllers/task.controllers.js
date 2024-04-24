@@ -187,35 +187,29 @@ export async function taskCompleted(req, res) {
   }
 }
 
-export async function updateTask(res, req){
+export async function updateTask(req, res){
   try{
-      const taskId = req.params.id;
+      console.log("CALLED")
+      const {taskArr} = req.body
+      console.log(taskArr)
       const {memberId, assigneeId, points, endDate, Status} = req.body;
-      const task = await prisma.task.findUnique({
-        where: {
-          id: taskId
-        }
-      });
-      if(memberId !== task.assignerId){
-        return response_400(res, 'You are not authorized to update this task');
-      }
-      const newAssignee = await prisma.member.findUnique({
-        where: {
-          id: assigneeId
-        }
-      });
-      const updatedTask = await prisma.task.update({
-        where: {
-          id: taskId
-        },
-        data: {
-          assigneeId: assigneeId,
-          Points: points,
-          EndDate: endDate,
+      for(const tsk of taskArr){
+        const updatedTask = await prisma.task.update({
+          where: {
+            id: tsk.Id
+          },
+          data: {
+            assigneeId: assigneeId,
+            Points: points,
+            EndDate: endDate,
             Status: Status
-        }
-      });
-      return response_200(res, 'Task Updated Successfully', updatedTask);
+          }
+        });
+        console.log("UPD")
+      }
+      
+      
+      return response_200(res, 'Task Updated Successfully', {});
   }
   catch(error)
   {
