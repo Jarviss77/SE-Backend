@@ -6,7 +6,7 @@ import { response_200, response_201, response_400, response_500 } from '../utils
 
 export async function createTask(req, res) {
   try {
-    const { Title, Description, OrganizationId, StartDate, EndDate, Points, dependentTasksIds } = req.body;
+    const { Title, Description, OrganizationId, StartDate, EndDate, Points, dependentTasksIds, assigneeId } = req.body;
 
     const organisation = await prisma.organization.findUnique({
       where: {
@@ -23,6 +23,7 @@ export async function createTask(req, res) {
         Title: Title,
         Description: Description,
         assignerId: req.member.id,
+        assigneeId: assigneeId,
         OrganizationId: OrganizationId,
         StartDate: StartDate,
         EndDate: EndDate,
