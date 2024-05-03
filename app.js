@@ -11,8 +11,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:3000', 'https://se-frontend-pearl.vercel.app/auth/login'
-  }));
+  origin: ['http://localhost:3000', 'https://se-frontend-pearl.vercel.app'],
+}));
+
 app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
