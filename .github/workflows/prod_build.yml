@@ -26,18 +26,18 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v5
-      with:
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend
+#    - name: Build and Push Docker Image
+#      uses: docker/build-push-action@v5
+#      with:
+#        push: true
+#        tags: ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend
 
 # Added alternate way to build and push image, just in case the above doesn't works
-#
-#    - name: Build and Push Docker Image
-#      run: |
-#        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend .
-#        docker push ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend
 
     - name: SSH into EC2
       uses: appleboy/ssh-action@master
