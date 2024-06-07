@@ -13,7 +13,6 @@ RUN npm rebuild bcrypt
 
 # Copy the rest of the application code to the working directory
 COPY . .
-COPY .env .env
 
 # Generate Prisma Client
 RUN npx prisma generate

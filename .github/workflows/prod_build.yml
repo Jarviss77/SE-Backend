@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: aws-ec2
 
     steps:
     - name: Checkout the repo
@@ -33,6 +33,11 @@ jobs:
 #        tags: ${{ secrets.DOCKERHUB_USERNAME }}/se-project:backend
 
 # Added alternate way to build and push image, just in case the above doesn't works
+
+    - name: Add .env file
+      run: |
+        touch .env
+        echo "${{ secrets.ENV }}" > .env
 
     - name: Build and Push Docker Image
       run: |
