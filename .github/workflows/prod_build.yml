@@ -34,11 +34,9 @@ jobs:
 
 # Added alternate way to build and push image, just in case the above doesn't works
 
-    - name: Add .env file
+    - name: Add .env file to the project
       run: |
-        touch .env
-        ls -al
-        echo "${{ secrets.ENV }}" > .env
+        touch .env && echo "${{ secrets.ENV }}" >> .env
 
     - name: Build and Push Docker Image
       run: |
