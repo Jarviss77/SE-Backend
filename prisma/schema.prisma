@@ -33,6 +33,7 @@ model User {
   State       String?
   Bio         String?
   Memberships Member[]
+  verified   Boolean  @default(false)
 }
 
 model Organization {
