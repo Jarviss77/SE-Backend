@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: aws-ec2
+    runs-on: linux
 
     steps:
     - name: Checkout the repo
