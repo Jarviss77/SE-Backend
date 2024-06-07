@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export async function verifymail (req, res) {
+export async function verifyMail (req, res) {
     const { email } = req.body;
     console.log(email);
     if (!email) {
@@ -27,23 +29,28 @@ export async function verifymail (req, res) {
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // use SSL
         auth: {
-            user: 'thetimeline65@gmail.com',  // Your Gmail address
-            pass: 'thetimeline@gmail.com'    // Your Gmail password or App Password
+            user: process.env.EMAIL_ADDRESS,  // Your Gmail address
+            pass: process.env.APP_PASSWORD    // Your Gmail password or App Password
         }
     });
-    console.log(transporter);
+    //console.log(transporter);
     // Configure email options
     const mailOptions = {
-      from: 'thetimeline65@gmail.com', 
-      to: email,
+      from: {
+        name: 'The Timeline',
+        address: process.env.EMAIL_ADDRESS,
+      }, 
+      to: [email],
       subject: 'Email Verification',
       text: `Your verification code is: ${verificationCode}`,
     };
-  
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error('Error occurred while sending email:');
+            console.error('Error occurred while sending email:', error);
         } else {
             console.log('Email sent successfully:', info.response);
         }
