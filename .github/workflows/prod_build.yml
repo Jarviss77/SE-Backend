@@ -37,6 +37,7 @@ jobs:
     - name: Add .env file
       run: |
         touch .env
+        ls -al
         echo "${{ secrets.ENV }}" > .env
 
     - name: Build and Push Docker Image
