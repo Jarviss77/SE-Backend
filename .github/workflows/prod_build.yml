@@ -36,7 +36,20 @@ jobs:
 
     - name: Add .env file to the project
       run: |
-        touch .env && echo "${{ secrets.ENV }}" >> .env
+        touch .env
+        cat <<EOF > .env
+        DATABASE_URL="${{ secrets.DATABASE_URL }}"
+        PORT=${{ secrets.PORT }}
+        JWT_SECRET="${{ secrets.JWT_SECRET }}"
+        AWS_REGION="${{ secrets.AWS_REGION }}"
+        AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        AWS_BUCKET_NAME="${{ secrets.AWS_BUCKET_NAME }}"
+        MAIL_HOST="${{ secrets.MAIL_HOST }}"
+        MAIL_PORT=${{ secrets.MAIL_PORT }}
+        MAIL_USER="${{ secrets.MAIL_USER }}"
+        MAIL_PASS="${{ secrets.MAIL_PASS }}"
+        EOF
 
     - name: Build and Push Docker Image
       run: |
